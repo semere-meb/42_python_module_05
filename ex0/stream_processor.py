@@ -5,7 +5,7 @@ from typing import Any, List
 from abc import ABC, abstractmethod
 
 
-class BaseProcessor(ABC):
+class DataProcessor(ABC):
     @abstractmethod
     def process(self, data: Any) -> str:
         pass
@@ -18,7 +18,7 @@ class BaseProcessor(ABC):
         return result
 
 
-class NumericProcessor(BaseProcessor):
+class NumericProcessor(DataProcessor):
     def process(self, data: Any) -> str:
         try:
             sum = 0
@@ -44,7 +44,7 @@ class NumericProcessor(BaseProcessor):
             return True
 
 
-class TextProcessor(BaseProcessor):
+class TextProcessor(DataProcessor):
     @staticmethod
     def count_chars(s: str) -> int:
         char_count = 0
@@ -75,14 +75,15 @@ class TextProcessor(BaseProcessor):
             char_count = 0
             word_count = 0
         finally:
-            result = f"Processed  text: {char_count} characters, {word_count} words"
+            result = f"Processed  text: {char_count} " +\
+                f"characters, {word_count} words"
         return result
 
     def validate(self, data: Any) -> bool:
         return data.__class__ is str
 
 
-class LogProcessor(BaseProcessor):
+class LogProcessor(DataProcessor):
     logs = ["ERROR", "WARN", "INFO"]
 
     @staticmethod
@@ -127,7 +128,8 @@ def main() -> None:
     print(f"Processing data: {data}")
     process_res = np.process(data)
     print(
-        "Validation: numeric data " + f"{'' if np.validate(data) else 'not '}verified"
+        "Validation: numeric data "
+        f"{'' if np.validate(data) else 'not '}verified"
     )
     print(f"Output: {np.format_output(process_res)}")
 
@@ -136,7 +138,8 @@ def main() -> None:
     data = "Hello Nexus world"
     print(f'Processing data: "{data}"')
     process_res = tp.process(data)
-    print("Validation: Text data " + f"{'' if tp.validate(data) else 'not '}verified")
+    print("Validation: Text data "
+          f"{'' if tp.validate(data) else 'not '}verified")
     print(f"Output: {tp.format_output(process_res)}")
 
     print("\nInitializing Log Processor...")
@@ -144,7 +147,8 @@ def main() -> None:
     data = "ERROR: Connection timeout"
     print(f'Processing data: "{data}"')
     process_res = lp.process(data)
-    print("Validation: Log entry " + f"{'' if lp.validate(data) else 'not '}verified")
+    print("Validation: Log entry "
+          f"{'' if lp.validate(data) else 'not '}verified")
     print(f"Output: {lp.format_output(process_res)}")
 
     print("\n=== Polymorphic Processing Demo ===")

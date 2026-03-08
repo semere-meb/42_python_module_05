@@ -7,12 +7,10 @@ from abc import ABC, abstractmethod
 
 class DataStream(ABC):
     id: str
-    data_type: str
     readings_count: int
 
-    def __init__(self, id: str, data_type: str) -> None:
+    def __init__(self, id: str) -> None:
         self.id = id
-        self.data_type = data_type
         self.readings_count = 0
 
     @abstractmethod
@@ -45,8 +43,8 @@ class DataStream(ABC):
 class SensorStream(DataStream):
     temp: int
 
-    def __init__(self, id: str, data_type: str) -> None:
-        super().__init__(id, data_type)
+    def __init__(self, id: str) -> None:
+        super().__init__(id)
 
     @staticmethod
     def dictify(data: List[str]) -> Dict:
@@ -75,8 +73,8 @@ class SensorStream(DataStream):
 class TransactionStream(DataStream):
     net_flow: int
 
-    def __init__(self, id: str, data_type: str) -> None:
-        super().__init__(id, data_type)
+    def __init__(self, id: str) -> None:
+        super().__init__(id)
 
     def dictify(data: List[str]) -> Dict:
         d = {}
@@ -111,8 +109,8 @@ class TransactionStream(DataStream):
 class EventStream(DataStream):
     error_count: int
 
-    def __init__(self, id: str, data_type: str) -> None:
-        super().__init__(id, data_type)
+    def __init__(self, id: str) -> None:
+        super().__init__(id)
 
     def process_batch(self, data_batch: List[Any]) -> str:
         self.readings_count = len(data_batch)
@@ -132,7 +130,6 @@ class StreamProcessor:
     def filter_all(self):
         return self.filtered
 
-    
     def process_all(self) -> None:
         data_batch = {
             "event": ["login", "error", "logout"],
@@ -140,9 +137,9 @@ class StreamProcessor:
             "sensor": ["temp:25", "humidity:60"],
         }
         objs = [
-            SensorStream('', ''),
-            TransactionStream('', ''),
-            EventStream('', ''),
+            SensorStream(""),
+            TransactionStream(""),
+            EventStream(""),
         ]
         self.filtered = {}
         for obj in objs:
@@ -159,30 +156,35 @@ class StreamProcessor:
             elif isinstance(obj, TransactionStream):
                 obj.process_batch(data_batch["transaction"])
                 print(f"- Transaction data: {obj.get_stats()}")
-                self.filtered["transaction"] = obj.filter_data(data_batch["transaction"])
-        
+                self.filtered["transaction"] = obj.filter_data(
+                    data_batch["transaction"]
+                )
+
 
 def main() -> None:
     print("=== CODE NEXUS - POLYMORPHIC STREAM SYSTEM ===")
 
     print("\nInitializing Sensor Stream...")
-    ss = SensorStream("SENSOR_001", "Environmental Data")
+    ss = SensorStream("SENSOR_001")
+    ss.data_type = "Environmental Data"
     print(f"Stream ID: {ss.id}, Type: {ss.data_type}")
     data = ["temp:22.5", "humidity:65", "pressure:1013"]
     print(f"Processing sensor batch: {ss.process_batch(data)}")
     print(f"Sensor analysis: {ss.get_stats()}, avg temp: {ss.temp}°C")
 
     print("\nInitializing Transaction Stream...")
-    ts = TransactionStream("TRANS_001", "Financial Data")
+    ts = TransactionStream("TRANS_001")
+    ts.data_type = "Financial Data"
     print(f"Stream ID: {ts.id}, Type: {ts.data_type}")
     data = ["buy:100", "sell:150", "buy:75"]
     print(f"Procetsing transaction batch: {ts.process_batch(data)}")
     print(
-        f"Transaction analysis: {ts.get_stats()}, net flow: {'+25' if ts.net_flow > 25 else ts.netflow} units"
-    )
+        f"Transaction analysis: {ts.get_stats()},"
+        f" net flow: {'+25' if ts.net_flow > 25 else ts.netflow} units")
 
     print("\nInitializing Event Stream...")
-    es = EventStream("EVENT_001", "System Event")
+    es = EventStream("EVENT_001")
+    es.data_type = "System Event"
     print(f"Stream ID: {es.id}, Type: {es.data_type}")
     data = ["login", "error", "logout"]
     print(f"Proceesing transaction batch: {es.process_batch(data)}")
@@ -196,7 +198,8 @@ def main() -> None:
     filtered = sp.filter_all()
     print("\nStream filtering active: High-priority data only")
     print(
-        f"Filtered results: {len(filtered['sensor'])} critical sensor alerts, {len(filtered['transaction'])} large transaction"
+        f"Filtered results: {len(filtered['sensor'])} critical "
+        "sensor alerts, {len(filtered['transaction'])} large transaction"
     )
 
     print("\nAll streams processed successfully. Nexus throughout  optimal.")
